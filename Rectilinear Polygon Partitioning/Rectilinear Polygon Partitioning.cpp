@@ -15,6 +15,7 @@ HWND mainWindow;
 Grid dotGrid;
 Dot* selectedDot;
 bool trackingMouse;
+HWND resetButton;
 
 ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
@@ -81,17 +82,23 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
    hInst = hInstance;
 
-   mainWindow = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+   mainWindow = CreateWindowW(
+       szWindowClass,
+       szTitle,
+       WS_OVERLAPPEDWINDOW,
+       CW_USEDEFAULT,
+       0,
+       CW_USEDEFAULT,
+       0,
+       nullptr,
+       nullptr,
+       hInstance,
+       nullptr
+   );
 
    if (!mainWindow) {
       return FALSE;
    }
-
-   dotGrid = Grid(mainWindow, 7, 5);
-   selectedDot = nullptr;
-
-   TrackMouse();
 
    ShowWindow(mainWindow, nCmdShow);
    UpdateWindow(mainWindow);
@@ -103,11 +110,47 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    case WM_CREATE:
+        {
+            dotGrid = Grid(hWnd, 7, 5);
+            selectedDot = nullptr;
+
+            RECT gridRect = dotGrid.getRect();
+            resetButton = CreateWindow(
+                L"BUTTON",
+                L"Reset",
+                WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+                ((gridRect.right - gridRect.left) / 2) - 50 + gridRect.left,
+                10,
+                100,
+                50,
+                hWnd,
+                NULL,
+                hInst,
+                NULL
+            );
+            TrackMouse();
+        }
+        break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
             switch (wmId)
             {
+            case BN_CLICKED:
+                if (lParam == (int)resetButton) {
+                    selectedDot = nullptr;
+                    RECT oldGridRect = dotGrid.getRect();
+                    dotGrid = Grid(mainWindow, 7, 5);
+                    RECT newGridRect = dotGrid.getRect();
+                    RECT redrawRect;
+                    redrawRect.left = min(oldGridRect.left, newGridRect.left);
+                    redrawRect.top = min(oldGridRect.top, newGridRect.top);
+                    redrawRect.right = max(oldGridRect.right, newGridRect.right);
+                    redrawRect.bottom = max(oldGridRect.bottom, newGridRect.bottom);
+                    REDRAWRECT(&redrawRect);
+                }
+                break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
