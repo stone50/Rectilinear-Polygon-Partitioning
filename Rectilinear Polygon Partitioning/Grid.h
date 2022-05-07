@@ -14,7 +14,7 @@ public:
 	Grid(HWND& hwnd, const unsigned int cols, const unsigned int rows);
 	Grid(const Grid& other);
 
-	VOID OnDraw(HDC& hdc);
+	void OnDraw(HDC& hdc);
 
 	const RECT getRect();
 

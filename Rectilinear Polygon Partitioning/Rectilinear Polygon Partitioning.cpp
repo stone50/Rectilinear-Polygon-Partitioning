@@ -60,21 +60,20 @@ int APIENTRY wWinMain(
 
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-    WNDCLASSEXW wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-
-    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = WndProc;
-    wcex.cbClsExtra     = 0;
-    wcex.cbWndExtra     = 0;
-    wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RECTILINEARPOLYGONPARTITIONING));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_RECTILINEARPOLYGONPARTITIONING);
-    wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    WNDCLASSEXW wcex{
+        sizeof(WNDCLASSEX),
+        CS_HREDRAW | CS_VREDRAW,
+        WndProc,
+        0,
+        0,
+        hInstance,
+        LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RECTILINEARPOLYGONPARTITIONING)),
+        LoadCursor(nullptr, IDC_ARROW),
+        (HBRUSH)(COLOR_WINDOW + 1),
+        MAKEINTRESOURCEW(IDC_RECTILINEARPOLYGONPARTITIONING),
+        szWindowClass,
+        LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL))
+    };
 
     return RegisterClassExW(&wcex);
 }
@@ -142,12 +141,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     selectedDot = nullptr;
                     RECT oldGridRect = dotGrid.getRect();
                     dotGrid = Grid(mainWindow, 7, 5);
-                    RECT newGridRect = dotGrid.getRect();
-                    RECT redrawRect;
-                    redrawRect.left = min(oldGridRect.left, newGridRect.left);
-                    redrawRect.top = min(oldGridRect.top, newGridRect.top);
-                    redrawRect.right = max(oldGridRect.right, newGridRect.right);
-                    redrawRect.bottom = max(oldGridRect.bottom, newGridRect.bottom);
+                    RECT redrawRect = dotGrid.getRect();
+                    redrawRect.left = min(oldGridRect.left, redrawRect.left);
+                    redrawRect.top = min(oldGridRect.top, redrawRect.top);
+                    redrawRect.right = max(oldGridRect.right, redrawRect.right);
+                    redrawRect.bottom = max(oldGridRect.bottom, redrawRect.bottom);
                     REDRAWRECT(&redrawRect);
                 }
                 break;
@@ -268,11 +266,12 @@ void OnPaint(HDC& hdc) {
 }
 
 void TrackMouse() {
-    tagTRACKMOUSEEVENT mouseLeave = tagTRACKMOUSEEVENT();
-    mouseLeave.cbSize = sizeof(tagTRACKMOUSEEVENT);
-    mouseLeave.dwFlags = TME_LEAVE;
-    mouseLeave.hwndTrack = mainWindow;
-    mouseLeave.dwHoverTime = HOVER_DEFAULT;
+    tagTRACKMOUSEEVENT mouseLeave{
+        sizeof(tagTRACKMOUSEEVENT),
+        TME_LEAVE,
+        mainWindow,
+        HOVER_DEFAULT
+    };
     TrackMouseEvent(&mouseLeave);
     trackingMouse = true;
 }

@@ -12,10 +12,10 @@ Grid::Grid(HWND& hwnd, const unsigned int cols, const unsigned int rows) {
 	const float spacing = min(clientWidth * 0.8f / cols, clientHeight * 0.8f / rows);
 	const float thisWidth = spacing * cols;
 	const float thisHeight = spacing * rows;
-	rect.left = (clientWidth - thisWidth) / 2;
-	rect.top = (clientHeight - thisHeight) / 2;
-	rect.right = rect.left + thisWidth;
-	rect.bottom = rect.top + thisHeight;
+	rect.left = (LONG)((clientWidth - thisWidth) / 2);
+	rect.top = (LONG)((clientHeight - thisHeight) / 2);
+	rect.right = (LONG)(rect.left + thisWidth);
+	rect.bottom = (LONG)(rect.top + thisHeight);
 
 	dots = std::vector<std::vector<Dot>>();
 	const float dotSize = spacing * 0.2f;
@@ -25,11 +25,12 @@ Grid::Grid(HWND& hwnd, const unsigned int cols, const unsigned int rows) {
 	for (unsigned int col = 0; col < cols; col++) {
 		std::vector<Dot> dotCol = std::vector<Dot>();
 		for (unsigned int row = 0; row < rows; row++) {
-			RECT dotRect = RECT();
-			dotRect.left = dotLeftOffset + (spacing * col);
-			dotRect.top = dotTopOffset + (spacing * row);
-			dotRect.right = dotRect.left + dotSize;
-			dotRect.bottom = dotRect.top + dotSize;
+			RECT dotRect{
+				(LONG)(dotLeftOffset + (spacing * col)),
+				(LONG)(dotTopOffset + (spacing * row)),
+				(LONG)(dotRect.left + dotSize),
+				(LONG)(dotRect.top + dotSize)
+			};
 			dotCol.push_back(Dot(dotRect, col, row));
 		}
 		dots.push_back(dotCol);
@@ -40,8 +41,8 @@ Grid::Grid(const Grid& other) :
 	dots(other.dots)
 {}
 
-VOID Grid::OnDraw(HDC& hdc) {
-	const float cornerRadius = min(rect.right - rect.left, rect.bottom - rect.top) / 10;
+void Grid::OnDraw(HDC& hdc) {
+	const int cornerRadius = min(rect.right - rect.left, rect.bottom - rect.top) / 10;
 	SelectObject(hdc, CreateSolidBrush(RGB(100, 100, 100)));
 	RoundRect(
 		hdc,
@@ -49,8 +50,8 @@ VOID Grid::OnDraw(HDC& hdc) {
 		rect.top,
 		rect.right,
 		rect.bottom,
-		cornerRadius,
-		cornerRadius
+		(int)cornerRadius,
+		(int)cornerRadius
 	);
 
 	for (std::vector<Dot>& dotCol : dots) {

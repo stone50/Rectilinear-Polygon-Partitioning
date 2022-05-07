@@ -8,16 +8,18 @@ private:
 	unsigned int gridX;
 	unsigned int gridY;
 
+	void DrawArrow(HDC& hdc, const RECT& _rect, const char direction);	// direction 0: left, 1: up, 2: right, 3: down
+
 public:
 	Dot* forward;
 	Dot* backward;
 	bool selected;
 
 	Dot();
-	Dot(const RECT _rect, const unsigned int _gridX, const unsigned int _gridY);
+	Dot(const RECT& _rect, const unsigned int _gridX, const unsigned int _gridY);
 	Dot(const Dot& other);
 
-	VOID OnDraw(HDC& hdc);
+	void OnDraw(HDC& hdc);
 
 	const RECT getRect();
 
